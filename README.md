@@ -1,7 +1,7 @@
 <a href="https://github.com/AdnanKhan-ak47/AdnanKhan-ak47">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AdnanKhan-ak47/AdnanKhan-ak47/main/dark_mode.svg">
-    <img alt="ugly-custard's GitHub Profile README" src="https://raw.githubusercontent.com/AdnanKhan-ak47/AdnanKhan-ak47/main/light_mode.svg">
+    <img alt="AdnanKhan-ak47's GitHub Profile README" src="https://raw.githubusercontent.com/AdnanKhan-ak47/AdnanKhan-ak47/main/light_mode.svg">
   </picture>
 </a>
 
