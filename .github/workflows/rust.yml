@@ -48,6 +48,7 @@ jobs:
           if git diff --cached --exit-code; then
             echo "No changes to commit"
             exit 0
+          fi  
 
       - name: Configure Git
         run: |
