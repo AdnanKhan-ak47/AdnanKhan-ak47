@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" font-family="CaskaydiaCove Nerd Font Mono,Consolas,monospace" width="910px" height="460px" font-size="16px">
+<style>
+  .keyColor {fill: #953800;}
+  .valueColor {fill: #0a3069;}
+  .addColor {fill: #1a7f37;}
+  .delColor {fill: #cf222e;}
+  .commentColor {fill: #8b949e;}
+  text, tspan {white-space: pre;}
+</style>
+
+<rect width="910px" height="460px" fill="#f6f8fa" rx="15"/>
+
+<!-- <defs>
+  <radialGradient id="glowTopLeft" cx="20%" cy="15%" r="40%">
+    <stop offset="0%" stop-color="#0a3069" stop-opacity="0.1"/>
+    <stop offset="100%" stop-color="#f6f8fa" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="glowBottomRight" cx="85%" cy="85%" r="40%">
+    <stop offset="0%" stop-color="#0a3069" stop-opacity="0.2"/>
+    <stop offset="100%" stop-color="#f6f8fa" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="910" height="460" fill="url(#glowTopLeft)" rx="15"/>
+<rect width="910" height="460" fill="url(#glowBottomRight)" rx="15"/> -->
+
+<foreignObject x="10" y="-4" width="400" height="500">
+  <body xmlns="http://www.w3.org/1999/xhtml">
+    <pre style="font-size: 14px; line-height: 1.15; letter-spacing: -1.9px; color: #0a3069;">
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⠟⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠞⠁⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠠⣄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⡎⠈⠀⠀⠀⠀⠀⠀⠀⠁⠐⠀⢀⡘⢥⡈⠳⠂⠀⠀⠀⠀⠀⠉⢲⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠸⠧⣀⡆⠀⠀⠀⠀⠀⠄⡀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⢠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠄⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢸⣿⠓⣰⠀⢸⡄⠀⠀⠀⠀⠀⠀⠀⠈⠃⠀⠀⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣿⣷⣾⣿⠀⢸⣧⢠⠀⠀⠀⠀⠀⠀⠀⠀⢰⣀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠸⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢰⣿⣿⣯⣿⡄⠸⣿⣿⣆⠀⠀⠀⠀⠀⠀⠖⢉⣃⣠⣄⣡⠀⢷⣄⠠⡄⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⡀⣿⢹⣿⣧⡀⡄⢀⠀⠘⠈⡜⠉⢼⡿⠁⢹⢴⠘⣦⡀⠀⠀⠠⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⢚⣽⢮⣿⣾⣮⠁⠀⠀⠁⠀⠀⠀⢀⠈⠈⠀⠘⠁⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⠀⠲⢋⣹⣿⣿⣿⣿⣿⣿⣿⣿⠃⠻⠿⠈⢻⠦⡀⠀⠀⠀⠀⠐⠉⠀⠀⡠⠁⠀⠀⡞⠀⠀⠀⠀
+⠀⢰⠁⠀⠀⠀⠈⠙⣿⣿⣿⡿⢿⣿⣿⣟⠒⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠞⠁⠀⠀⡰⠁⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢋⣿⣿⣿⣿⣿⣟⣿⣏⠀⠀⠀⠈⠀⣀⣀⠀⠀⠒⢉⠔⣫⡄⡀⡸⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⢀⡓⠂⣠⠴⣿⣿⣿⣿⠉⠙⣿⣿⣿⣷⣄⠀⠀⠀⠁⠀⠀⠀⠀⢀⠜⠀⠀⡇⠁⠀⠀⠀⠀⠀⠀
+⢀⣤⠆⠉⠉⠉⠁⠀⠈⠙⠛⠛⠿⠿⣿⣿⣿⣿⣿⣿⣶⣤⣄⡀⠀⢀⣔⣁⣀⣴⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⢹⠟⡿⠋⠰⢿⣿⣿⣿⣶⣿⣿⡿⠟⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣀⣤⣤⣤⣤⣤⣤⣄⡀⠀⠀⠀⠀⠐⠠⣈⡈⠀⢀⣴⣿⣿⣿⣿⠊⢿⡟⢀⣴⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣤⡀⠀⠀⣽⣿⣿⣿⣿⣿⡿⠂⠀⠀⠀⠀⠀⠀⠀⠲⣤⣀⠀⠀⠀⠀⠀
+      </pre>
+  </body>
+</foreignObject>
+
+<text x="380" y="30" fill="#24292f">
+  <tspan x="380" y="30">AdnanKhan-ak47</tspan>
+  <tspan x="380" y="50">————————————</tspan>
+  <tspan x="380" y="70" class="keyColor">Name</tspan>: <tspan class="valueColor">Adnan Khan</tspan>
+  <tspan x="380" y="90" class="keyColor">Location</tspan>: <tspan class="valueColor">Mumbai, India</tspan>
+  <tspan x="380" y="110" class="keyColor">Major</tspan>: <tspan class="valueColor">Computer Engineering</tspan><tspan class="commentColor"> #AInDS</tspan>
+  <tspan x="380" y="130" class="keyColor">Editor</tspan>: <tspan class="valueColor">NeoVim, VSCode</tspan>
+</text>
+
+<text x="380" y="150" fill="#24292f">
+  <tspan x="380" y="170" class="keyColor">Languages and Tools</tspan>:
+  <tspan x="380" y="190">———————————————————</tspan>
+  <tspan x="380" y="210" class="valueColor">JS/TS, Python, Rust, C/C++, Shell Scripting</tspan><tspan class="commentColor"> #Langs</tspan>
+  <tspan x="380" y="250" class="valueColor">React, NextJS, Express, NodeJS, HTML/CSS, Tailwind</tspan><tspan class="commentColor"> #Web Dev</tspan>
+  <tspan x="380" y="270" class="valueColor">MongoDB, PostgreSQL, MySQL, Firebase </tspan><tspan class="commentColor"> #DB</tspan>
+  <tspan x="380" y="290" class="valueColor">Git/Github, AWS, Docker, Kubernetes, Jenkins, Ansible, CI/CD, Postman, JupyterLab</tspan><tspan class="commentColor"> #Tech</tspan>
+  <tspan x="380" y="310" class="valueColor">English, Hindi, Urdu</tspan><tspan class="commentColor"> #Real Langs</tspan>
+</text>
+
+<text x="20" y="360" fill="#24292f">
+  <tspan x="20" y="360" class="keyColor">Contact</tspan>:
+  <tspan x="20" y="380">———————</tspan>
+  <tspan x="20" y="400" class="keyColor">Email</tspan>: <tspan class="valueColor">adnankhan07666@gmail.com</tspan>
+  <tspan x="20" y="420" class="keyColor">LinkedIn</tspan>: <tspan class="valueColor">adnankhan-ak</tspan>
+  <tspan x="20" y="440" class="keyColor">Discord</tspan>: <tspan class="valueColor">adnankhan.a.k</tspan>
+</text>
+
+<text x="380" y="360" fill="#24292f">
+  <tspan x="380" y="360" class="keyColor">GitHub Stats</tspan>:
+  <tspan x="380" y="380">————————————</tspan>
+  <tspan x="380" y="400" class="keyColor">Repos</tspan>: <tspan class="valueColor">38</tspan> {<tspan class="keyColor">Contributed</tspan>: <tspan class="valueColor">45</tspan>} | <tspan class="keyColor">Stars</tspan>: <tspan class="valueColor">14</tspan>
+  <tspan x="380" y="420" class="keyColor">Commits</tspan>: <tspan class="valueColor">501</tspan> | <tspan class="keyColor">Issues</tspan>: <tspan class="valueColor">7</tspan> | <tspan class="keyColor">PRs</tspan>: <tspan class="valueColor">51</tspan>
+  <tspan x="380" y="440" class="keyColor">Lines of Code</tspan>: <tspan class="valueColor">898,242</tspan> (<tspan class="addColor">991,910++</tspan>, <tspan class="delColor">93,668--</tspan>)
+</text>
+
+</svg>
