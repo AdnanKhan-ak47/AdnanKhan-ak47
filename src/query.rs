@@ -626,7 +626,7 @@ pub fn svg_overwrite(
 
     // SAFETY: We ensure tspans are unique and safe to mutate after collection
     unsafe {
-        if tspans.len() < 51 {
+        if tspans.len() < 49 {
             panic!("Not enough <tspan> elements: found {}", tspans.len());
         }
 
