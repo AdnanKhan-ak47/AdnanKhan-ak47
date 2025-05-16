@@ -626,19 +626,19 @@ pub fn svg_overwrite(
 
     // SAFETY: We ensure tspans are unique and safe to mutate after collection
     unsafe {
-        if tspans.len() < 49 {
+        if tspans.len() < 40 {
             panic!("Not enough <tspan> elements: found {}", tspans.len());
         }
 
-        (*tspans[36]).children = vec![XMLNode::Text(repo_data.to_string())];
-        (*tspans[38]).children = vec![XMLNode::Text(contrib_data.to_string())];
-        (*tspans[40]).children = vec![XMLNode::Text(star_data.to_string())];
-        (*tspans[42]).children = vec![XMLNode::Text(commit_data.to_string())];
-        (*tspans[44]).children = vec![XMLNode::Text(stats_data["issues"].to_string())];
-        (*tspans[46]).children = vec![XMLNode::Text(stats_data["prs"].to_string())];
-        (*tspans[48]).children = vec![XMLNode::Text(loc_data[2].clone())];
-        (*tspans[49]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
-        (*tspans[50]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];
+        (*tspans[34]).children = vec![XMLNode::Text(repo_data.to_string())];
+        (*tspans[36]).children = vec![XMLNode::Text(contrib_data.to_string())];
+        (*tspans[38]).children = vec![XMLNode::Text(star_data.to_string())];
+        (*tspans[40]).children = vec![XMLNode::Text(commit_data.to_string())];
+        (*tspans[42]).children = vec![XMLNode::Text(stats_data["issues"].to_string())];
+        (*tspans[44]).children = vec![XMLNode::Text(stats_data["prs"].to_string())];
+        (*tspans[46]).children = vec![XMLNode::Text(loc_data[2].clone())];
+        (*tspans[47]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
+        (*tspans[48]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];
     }
 
     let mut output = fs::File::create(filename)?;
