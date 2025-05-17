@@ -23,7 +23,7 @@
 <rect width="910" height="460" fill="url(#glowTopLeft)" rx="15"/>
 <rect width="910" height="460" fill="url(#glowBottomRight)" rx="15"/>
 
-  <image x=10 y=-4 width=400 height=500 href="../assets/Daco_121066.png"/>
+  <image x=10 y=-4 width=400 height=500 href="https://raw.githubusercontent.com/AdnanKhan-ak47/AdnanKhan-ak47/main/assets/Daco_121066.png"/>
 
 <text x="380" y="30" fill="#c9d1d9">
   <tspan x="380" y="30">AdnanKhan-ak47</tspan>
