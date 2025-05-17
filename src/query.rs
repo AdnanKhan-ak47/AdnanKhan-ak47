@@ -618,11 +618,8 @@ pub fn svg_overwrite(
     use std::fs;
     use xmltree::{Element, XMLNode};
 
-    println!("svg overwrite called in path: {}", filename);
     let svg_content = fs::read_to_string(filename)?;
     let mut root = Element::parse(svg_content.as_bytes())?;
-
-    println!("Did we reach here inside svg overwrite??");
 
     let mut tspans: Vec<*mut Element> = vec![];
     collect_tspans(&mut root, &mut tspans);
@@ -646,8 +643,12 @@ pub fn svg_overwrite(
         (*tspans[36]).children = vec![XMLNode::Text(contrib_data.to_string())];
         (*tspans[38]).children = vec![XMLNode::Text(star_data.to_string())];
         (*tspans[40]).children = vec![XMLNode::Text(commit_data.to_string())];
-        (*tspans[42]).children = vec![XMLNode::Text(stats_data["issues"].to_string())];
-        (*tspans[44]).children = vec![XMLNode::Text(stats_data["pullRequests"].to_string())];
+        (*tspans[42]).children = vec![XMLNode::Text(
+            stats_data["issues"]["totalCount"].to_string(),
+        )];
+        (*tspans[44]).children = vec![XMLNode::Text(
+            stats_data["pullRequests"]["totalCount"].to_string(),
+        )];
         (*tspans[46]).children = vec![XMLNode::Text(loc_data[2].clone())];
         (*tspans[47]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
         (*tspans[48]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];
