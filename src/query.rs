@@ -315,6 +315,7 @@ pub fn graph_repos_stars(
     let response = simple_request("graph_repos_stars", query, variables)?;
     let json: Value = response.json()?;
 
+    println!("Graph star repo: Here's the json response: {:#?}", &json);
     let user = &json["data"]["user"];
     let repos = &user["repositories"];
 
@@ -354,6 +355,8 @@ pub fn stats_getter() -> Result<Value, Box<dyn Error>> {
 
     let response = simple_request("stats_getter", query, variables)?;
     let json: Value = response.json()?;
+
+    println!("Stats: Here's the json response: {:#?}", &json);
 
     // Instead of converting to HashMap, return the relevant user_data part as Value
     let user_data = &json["data"]["user"];
@@ -581,13 +584,12 @@ pub fn force_close_file(
     cache_comment: &str,
 ) -> std::result::Result<(), Box<dyn Error>> {
     dotenv().ok();
+    println!("Force closing the file!!");
     let mut hasher = Sha256::new();
     hasher.update(USER_NAME.as_bytes());
     let hash = format!("{:x}", hasher.finalize());
 
     let filename = format!("cache/{}.txt", hash);
-
-    println!("force_close_file: Does this file exists? {}", &filename);
     let data_string = serde_json::to_string_pretty(data)?;
 
     let mut file = File::create(&filename)?;
@@ -630,13 +632,22 @@ pub fn svg_overwrite(
         if tspans.len() < 40 {
             panic!("Not enough <tspan> elements: found {}", tspans.len());
         }
+        println!("repo_data: {}", &repo_data);
+        println!("contrib_data: {}", &contrib_data);
+        println!("star_data: {}", &star_data);
+        println!("commit_data: {}", &commit_data);
+        println!("stats_data issues: {}", &stats_data["issues"]["totalCount"]);
+        println!("stats_data prs: {:#?}", &stats_data);
+        println!("loc_data 2: {}", &loc_data[2]);
+        println!("loc_data 0: {}", &loc_data[0]);
+        println!("loc_data 1: {}", &loc_data[1]);
 
         (*tspans[34]).children = vec![XMLNode::Text(repo_data.to_string())];
         (*tspans[36]).children = vec![XMLNode::Text(contrib_data.to_string())];
         (*tspans[38]).children = vec![XMLNode::Text(star_data.to_string())];
         (*tspans[40]).children = vec![XMLNode::Text(commit_data.to_string())];
         (*tspans[42]).children = vec![XMLNode::Text(stats_data["issues"].to_string())];
-        (*tspans[44]).children = vec![XMLNode::Text(stats_data["prs"].to_string())];
+        (*tspans[44]).children = vec![XMLNode::Text(stats_data["pullRequests"].to_string())];
         (*tspans[46]).children = vec![XMLNode::Text(loc_data[2].clone())];
         (*tspans[47]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
         (*tspans[48]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];

@@ -64,7 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (repo_result, repo_time) = perf_counter(|| {
         graph_repos_stars(
-            "stars",
+            "repos",
             vec!["OWNER".to_string()],
             None,
             &user_name,
@@ -76,7 +76,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (contrib_result, contrib_time) = perf_counter(|| {
         graph_repos_stars(
             "repos",
-            vec!["OWNER".to_string()],
+            vec![
+                "OWNER".to_string(),
+                "COLLABORATOR".to_string(),
+                "ORGANIZATION_MEMBER".to_string(),
+            ],
             None,
             &user_name,
             &github_token,
