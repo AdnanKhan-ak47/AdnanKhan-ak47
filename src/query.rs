@@ -423,32 +423,31 @@ pub fn cache_builder(
 ) -> Result<(i32, i32, i32, bool), Box<dyn Error>> {
     let mut cached = true;
 
+    // Determine cache filename
     let hash = Sha256::digest(user_name.as_bytes());
     let filename = format!("cache/{}.txt", hex::encode(hash));
+    fs::create_dir_all("cache")?; // Ensure directory exists
 
-    println!("cache_builder: Does this file exists? {}", &filename);
+    // Read or initialize cache data
     let mut data: Vec<String> = if Path::new(&filename).exists() {
         BufReader::new(File::open(&filename)?)
             .lines()
             .filter_map(Result::ok)
             .collect()
     } else {
-        let mut comments: Vec<String> = vec![];
-        if comment_size > 0 {
-            comments = vec![
-                "This line is a comment block. Write whatever you want here."
-                    .to_string();
-                comment_size
-            ];
-        }
-        fs::create_dir_all("cache")?;
         let mut f = File::create(&filename)?;
+        let comments = vec![
+            "This line is a comment block. Write whatever you want here."
+                .to_string();
+            comment_size
+        ];
         for line in &comments {
-            writeln!(f, "{}", line);
+            writeln!(f, "{}", line)?;
         }
         comments
     };
 
+    // If cache size doesn't match or force is set, flush
     if data.len().saturating_sub(comment_size) != edges.len() || force_cache {
         cached = false;
         flush_cache(edges, &filename, comment_size)?;
@@ -458,12 +457,11 @@ pub fn cache_builder(
             .collect();
     }
 
-    let cache_comment = data[..comment_size].to_vec();
-    let mut lines = data[comment_size..].to_vec();
+    // Separate comments and lines
+    let (cache_comment, mut lines) = data.split_at(comment_size);
+    let cache_comment_str = cache_comment.join("");
+    let mut lines: Vec<String> = lines.to_vec();
 
-    // right after you compute cache_comment: Vec<String>
-    let cache_comment_str = cache_comment.join(""); // single String
-                                                    // make a mutable JSON state to pass through
     let mut json_state = serde_json::json!({});
 
     for (index, edge) in edges.iter().enumerate() {
@@ -474,7 +472,9 @@ pub fn cache_builder(
 
             if let Some(line) = lines.get_mut(index) {
                 let parts: Vec<&str> = line.split_whitespace().collect();
-                if parts.get(0) == Some(&hash_str.as_str()) {
+                let cached_hash = parts.get(0).copied().unwrap_or("");
+
+                if cached_hash == hash_str {
                     let current_commit_count = edge
                         .pointer("/node/defaultBranchRef/target/history/totalCount")
                         .and_then(|v| v.as_i64())
@@ -485,6 +485,7 @@ pub fn cache_builder(
                         .and_then(|v| v.parse::<i64>().ok())
                         .unwrap_or(0);
 
+                    // If commit count has changed, recalculate
                     if current_commit_count != cached_commit_count {
                         let mut split = name_with_owner.split('/');
                         let owner = split.next().unwrap_or("");
@@ -500,27 +501,27 @@ pub fn cache_builder(
                             0,
                             None,
                         )?;
-                        {
-                            *line = format!(
-                                "{} {} {} {} {}\n",
-                                hash_str, current_commit_count, loc_total, loc_add_new, loc_del_new
-                            );
-                        }
+
+                        *line = format!(
+                            "{} {} {} {} {}\n",
+                            hash_str, current_commit_count, loc_total, loc_add_new, loc_del_new
+                        );
                     }
                 }
             }
         }
     }
 
+    // Re-write the cache file
     let mut file = File::create(&filename)?;
-    for line in &cache_comment {
-        writeln!(file, "{}", line);
+    for line in cache_comment {
+        writeln!(file, "{}", line)?;
     }
-
     for line in &lines {
-        write!(file, "{}", line);
+        write!(file, "{}", line)?; // no newline needed; already present
     }
 
+    // Sum the LOC values
     for line in &lines {
         let parts: Vec<&str> = line.split_whitespace().collect();
         if parts.len() >= 5 {
