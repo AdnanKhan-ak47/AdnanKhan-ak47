@@ -630,19 +630,15 @@ pub fn svg_overwrite(
             panic!("Not enough <tspan> elements: found {}", tspans.len());
         }
 
-        (*tspans[33]).children = vec![XMLNode::Text(repo_data.to_string())];
-        (*tspans[35]).children = vec![XMLNode::Text(contrib_data.to_string())];
-        (*tspans[37]).children = vec![XMLNode::Text(star_data.to_string())];
-        (*tspans[39]).children = vec![XMLNode::Text(commit_data.to_string())];
-        (*tspans[41]).children = vec![XMLNode::Text(
-            stats_data["issues"]["totalCount"].to_string(),
-        )];
-        (*tspans[43]).children = vec![XMLNode::Text(
-            stats_data["pullRequests"]["totalCount"].to_string(),
-        )];
-        (*tspans[45]).children = vec![XMLNode::Text(loc_data[2].clone())];
-        (*tspans[46]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
-        (*tspans[47]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];
+        (*tspans[34]).children = vec![XMLNode::Text(repo_data.to_string())];
+        (*tspans[36]).children = vec![XMLNode::Text(contrib_data.to_string())];
+        (*tspans[38]).children = vec![XMLNode::Text(star_data.to_string())];
+        (*tspans[40]).children = vec![XMLNode::Text(commit_data.to_string())];
+        (*tspans[42]).children = vec![XMLNode::Text(stats_data["issues"].to_string())];
+        (*tspans[44]).children = vec![XMLNode::Text(stats_data["prs"].to_string())];
+        (*tspans[46]).children = vec![XMLNode::Text(loc_data[2].clone())];
+        (*tspans[47]).children = vec![XMLNode::Text(format!("{}++", loc_data[0]))];
+        (*tspans[48]).children = vec![XMLNode::Text(format!("{}--", loc_data[1]))];
     }
 
     let mut output = fs::File::create(filename)?;
