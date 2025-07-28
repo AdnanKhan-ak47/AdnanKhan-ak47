@@ -19,9 +19,7 @@
   </a>
   </div>
   <div>
-    <a href="https://visitcount.itsvg.in" target="_blank">
-      <img src="https://visitcount.itsvg.in/api?id=AdnanKhan-ak47&icon=0&color=1" />
-    </a>
+    <img src="https://komarev.com/ghpvc/?username=ugly-custard&color=0e75b6&abbreviated=true&style=for-the-badge" alt="ugly-custard" />
   </div>
 </div>
 
@@ -49,8 +47,8 @@
     </div>
     <br><br>
     <div align="center">
-      <a href="https://www.last.fm/user/AdnanKhan-ak47">
-        <img src="https://lastfm-recently-played.vercel.app/api?user=AdnanKhan-ak47&show_user=header&header_style=compact_stats&bg_color=1A1B27" />
+      <a href="https://www.last.fm/user/adnankhan-ak">
+        <img src="https://lastfm-recently-played.vercel.app/api?user=adnankhan-ak&show_user=header&header_style=compact_stats&bg_color=1A1B27" />
       </a>
     </div>
   </p>
