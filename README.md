@@ -19,7 +19,7 @@
   </a>
   </div>
   <div>
-    <img src="https://komarev.com/ghpvc/?username=ugly-custard&color=0e75b6&abbreviated=true&style=for-the-badge" alt="ugly-custard" />
+    <img src="https://komarev.com/ghpvc/?username=AdnanKhan-ak47&color=0e75b6&abbreviated=true&style=for-the-badge" alt="AdnanKhan-ak47" />
   </div>
 </div>
 
