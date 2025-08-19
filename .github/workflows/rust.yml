@@ -1,3 +1,5 @@
+# .github/workflows/daily-rust-build.yml
+
 name: Daily Rust Build
 
 on:
@@ -11,11 +13,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Add permissions for the GITHUB_TOKEN to allow pushing changes
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -36,26 +40,18 @@ jobs:
       - name: Build project
         run: cargo build --release
 
-      - name: Run project (e.g. generate/update files)
+      - name: Run project to update files
         env:
+          # Your secrets are still passed securely
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           USER_NAME: ${{ secrets.USER_NAME }}
         run: cargo run --release
 
-      - name: Check for changes
-        run: |
-          git add .
-          if git diff --cached --exit-code; then
-            echo "No changes to commit"
-            exit 0
-          fi  
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "github-actions-bot@github.com"
-          git config --global user.name "github-actions[bot]"
-
+      # This single action replaces all your manual git steps
       - name: Commit and push changes
-        run: |
-          git commit -m "Auto-update from GitHub Actions"
-          git push origin main || echo "Push failed - maybe no changes?"
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          # Optional: Customize the commit message
+          commit_message: "📝 Auto-update from GitHub Actions"
+          # Optional: Specify the branch to push to
+          branch: main
