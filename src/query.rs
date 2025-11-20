@@ -1,9 +1,9 @@
 use crate::{
-    exports::{get_auth_headers, OWNER_ID, USER_NAME},
+    exports::{OWNER_ID, USER_NAME, get_auth_headers},
     utility::{query_count, simple_request},
 };
 use dotenvy::dotenv;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{
     error::Error,
@@ -50,9 +50,11 @@ pub fn recursive_loc(
     my_commits: usize,
     cursor: Option<String>,
 ) -> Result<(usize, usize, usize), Box<dyn Error>> {
+    use std::{thread, time}; // Import sleep tools
+
     query_count("recursive_loc");
 
-    // GraphQL query with pagination
+    // GraphQL query
     let query = r#"
         query ($repo_name: String!, $owner: String!, $cursor: String) {
             repository(name: $repo_name, owner: $owner) {
@@ -94,45 +96,75 @@ pub fn recursive_loc(
     });
 
     let client = reqwest::blocking::Client::new();
-    let response = client
-        .post("https://api.github.com/graphql")
-        .headers(get_auth_headers())
-        .json(&json!({
-            "query": query,
-            "variables": variables,
-        }))
-        .send()?;
 
-    let status = response.status();
-    let json: Value = response.json()?;
+    // --- RETRY LOGIC START ---
+    let mut attempts = 0;
+    let max_attempts = 3;
+    let response_text;
 
-    if status == 200 {
-        let repo = &json["data"]["repository"]["defaultBranchRef"];
-        if !repo.is_null() {
-            let history = &repo["target"]["history"];
-            return loc_counter_one_repo(
-                owner,
-                repo_name,
-                data,
-                cache_comment,
-                history,
-                addition_total,
-                deletion_total,
-                my_commits,
+    loop {
+        attempts += 1;
+
+        let response = client
+            .post("https://api.github.com/graphql")
+            .headers(get_auth_headers())
+            .json(&json!({
+                "query": query,
+                "variables": variables,
+            }))
+            .send()?;
+
+        let status = response.status();
+
+        // We have to clone the text because if we fail, we might need to print it,
+        // but if we succeed, we need to parse it.
+        let text = response.text()?;
+
+        if status.is_success() {
+            response_text = text;
+            break; // Success! Exit the loop
+        } else if status.as_u16() == 502 || status.as_u16() == 500 || status.as_u16() == 503 {
+            println!(
+                "GitHub API Hiccup (Status {}). Retrying {}/{}...",
+                status, attempts, max_attempts
             );
+            if attempts >= max_attempts {
+                return Err(format!(
+                    "Failed after {} retries. Final status: {}. Body: {}",
+                    max_attempts, status, text
+                )
+                .into());
+            }
+            // Wait 5 seconds before retrying to let the server cool down
+            thread::sleep(time::Duration::from_secs(5));
         } else {
-            return Ok((0, 0, 0));
+            // If it's a 403 (Forbidden) or 400 (Bad Request), retrying won't help.
+            println!("CRITICAL ERROR: GitHub API returned status: {}", status);
+            println!("Raw Response Body: {}", text);
+            return Err(format!("recursive_loc() failed with status {}: {}", status, text).into());
         }
     }
+    // --- RETRY LOGIC END ---
 
-    force_close_file(data, cache_comment)?;
+    // Parse the successful JSON
+    let json: Value = serde_json::from_str(&response_text)?;
 
-    if status == 403 {
-        return Err("Too many arguments! You've hit Github's Anti-abuse limit".into());
+    let repo = &json["data"]["repository"]["defaultBranchRef"];
+    if !repo.is_null() {
+        let history = &repo["target"]["history"];
+        return loc_counter_one_repo(
+            owner,
+            repo_name,
+            data,
+            cache_comment,
+            history,
+            addition_total,
+            deletion_total,
+            my_commits,
+        );
+    } else {
+        return Ok((0, 0, 0));
     }
-
-    // Generic error
-    Err(format!("recursive_loc() failed with status {}: {:?}", status, json).into())
 }
 
 pub fn loc_counter_one_repo(
@@ -285,7 +317,7 @@ pub fn graph_repos_stars(
     let query = r#"
         query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
             user(login: $login) {
-                repositories(first: 100, after: $cursor, ownerAffiliations: $owner_affiliation) {
+                repositories(first: 20, after: $cursor, ownerAffiliations: $owner_affiliation) {
                     totalCount
                     edges {
                         node {
@@ -461,7 +493,7 @@ pub fn cache_builder(
     }
 
     // Separate comments and lines
-    let (cache_comment, mut lines) = data.split_at(comment_size);
+    let (cache_comment, lines) = data.split_at(comment_size);
     let cache_comment_str = cache_comment.join("");
     let mut lines: Vec<String> = lines.to_vec();
 
