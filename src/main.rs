@@ -2,145 +2,61 @@ mod exports;
 mod query;
 mod utility;
 
-use std::{env, fs, sync::MutexGuard};
+use std::error::Error;
 
 use dotenvy::dotenv;
-use exports::{OWNER_ID, USER_NAME};
-use query::{
-    commit_counter, graph_repos_stars, loc_query, stats_getter, svg_overwrite, user_getter,
-};
-use utility::{formatter, perf_counter, query_count, QUERY_COUNT};
+use exports::USER_NAME;
+use query::{fetch_repos, loc_stats, stats_getter, svg_overwrite, user_getter};
+use utility::{QUERY_COUNT, perf_counter, print_time};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// Set to recompute LOC for every repo instead of trusting the cache.
+const FORCE_REFRESH: bool = false;
+
+fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
-    let user_name = env::var("USER_NAME").expect("USER_NAME not found!");
-    let github_token = env::var("ACCESS_TOKEN").expect("ACCESS_TOKEN not found!");
+    let user_name = USER_NAME.as_str();
 
     println!("Calculation times:");
 
-    let (user_data, user_time) = {
-        let (res, time) = perf_counter(|| user_getter(USER_NAME.as_str()));
-        (res?, time)
-    };
-    let (owner_id, acc_date) = user_data;
-    OWNER_ID.set(owner_id).expect("Owner id was already set");
-    formatter("account data", user_time, None, 0);
+    let (owner_id, user_time) = perf_counter(|| user_getter(user_name));
+    let owner_id = owner_id?;
+    print_time("account data", user_time);
 
-    let affiliations = vec![
-        "OWNER".to_string(),
-        "COLLABORATOR".to_string(),
-        "ORGANIZATION_MEMBER".to_string(),
+    let (repos, repos_time) = perf_counter(|| fetch_repos(user_name));
+    let repos = repos?;
+    print_time("repositories", repos_time);
+
+    let (loc, loc_time) = perf_counter(|| loc_stats(&repos, user_name, &owner_id, FORCE_REFRESH));
+    let loc = loc?;
+    print_time(&format!("LOC ({} refreshed)", loc.refreshed), loc_time);
+
+    let (stats, stats_time) = perf_counter(|| stats_getter(user_name));
+    let (issues, prs) = stats?;
+    print_time("issues/prs stats", stats_time);
+
+    let owned: Vec<_> = repos.iter().filter(|r| r.is_owned_by(user_name)).collect();
+    let net_loc = loc.added as i64 - loc.deleted as i64;
+    let values = [
+        ("repo_data", owned.len().to_string()),
+        ("contrib_data", repos.len().to_string()),
+        ("star_data", owned.iter().map(|r| r.stars).sum::<u64>().to_string()),
+        ("commit_data", loc.commits.to_string()),
+        ("issue_data", issues.to_string()),
+        ("pr_data", prs.to_string()),
+        ("loc_data", net_loc.to_string()),
+        ("loc_add", format!("{}++", loc.added)),
+        ("loc_del", format!("{}--", loc.deleted)),
     ];
-    let comment_size = 7;
-    let force_cache = false;
-    let cursor = None;
-    let edges = Vec::new();
+    svg_overwrite("src/dark_mode.svg", &values)?;
+    svg_overwrite("src/light_mode.svg", &values)?;
 
-    let (total_loc, loc_time) = {
-        let (res, time) =
-            perf_counter(|| loc_query(affiliations, comment_size, force_cache, cursor, edges));
-        (res?, time)
-    };
+    print_time("Total function time", user_time + repos_time + loc_time + stats_time);
 
-    if total_loc.3 {
-        formatter("LOC (cached)", loc_time, None, 0);
-    } else {
-        formatter("LOC (no cache)", loc_time, None, 0);
+    let counts = QUERY_COUNT.lock();
+    for (func_name, count) in counts.iter() {
+        println!("{func_name} called {count} times");
     }
-
-    let (commit_result, commit_time) = perf_counter(|| commit_counter(7));
-    let commit_data = commit_result?;
-
-    let (star_result, star_time) = perf_counter(|| {
-        graph_repos_stars(
-            "stars",
-            vec!["OWNER".to_string()],
-            None,
-            &user_name,
-            &github_token,
-        )
-    });
-    let star_data = star_result?;
-
-    let (repo_result, repo_time) = perf_counter(|| {
-        graph_repos_stars(
-            "repos",
-            vec!["OWNER".to_string()],
-            None,
-            &user_name,
-            &github_token,
-        )
-    });
-    let repo_data = repo_result?;
-
-    let (contrib_result, contrib_time) = perf_counter(|| {
-        graph_repos_stars(
-            "repos",
-            vec![
-                "OWNER".to_string(),
-                "COLLABORATOR".to_string(),
-                "ORGANIZATION_MEMBER".to_string(),
-            ],
-            None,
-            &user_name,
-            &github_token,
-        )
-    });
-    let contrib_data = contrib_result?;
-
-    let (stats_result, stats_time) = perf_counter(|| stats_getter());
-    let stats_data = stats_result?;
-    formatter("issues/prs stats", stats_time, None, 0);
-
-    let commit_data = formatter("commit counter", commit_time, Some(commit_data), 0);
-    let star_data = formatter("star counter", star_time, Some(star_data), 0);
-    let repo_data = formatter("my repositories", repo_time, Some(repo_data), 0);
-    let contrib_data = formatter("contributed repos", contrib_time, Some(contrib_data), 0);
-
-    // Format added, deleted, and total LOC with commas
-    // Convert to array or vector to iterate:
-    let total_loc_arr = [total_loc.0, total_loc.1, total_loc.2, total_loc.3 as i32];
-    let formatted_loc: Vec<String> = total_loc_arr
-        .iter()
-        .take(total_loc_arr.len() - 1)
-        .map(|loc| format!("{:}", loc))
-        .collect();
-
-    svg_overwrite(
-        "src/dark_mode.svg",
-        commit_data.as_deref().unwrap_or(""),
-        star_data.as_deref().unwrap_or(""),
-        repo_data.as_deref().unwrap_or(""),
-        contrib_data.as_deref().unwrap_or(""),
-        &stats_data,
-        &formatted_loc,
-    )?;
-
-    svg_overwrite(
-        "src/light_mode.svg",
-        commit_data.as_deref().unwrap_or(""),
-        star_data.as_deref().unwrap_or(""),
-        repo_data.as_deref().unwrap_or(""),
-        contrib_data.as_deref().unwrap_or(""),
-        &stats_data,
-        &formatted_loc,
-    )?;
-
-    // Move cursor up to overwrite previous lines (ANSI escape sequences)
-    print!(
-        "\x1B[8F{:<21} {:>11.4} s \x1B[E\x1B[E\x1B[E\x1B[E\x1B[E\x1B[E\x1B[E\x1B[E\n",
-        "Total function time:",
-        user_time + loc_time + commit_time + star_time + repo_time + contrib_time + stats_time
-    );
-
-    // Print total GitHub GraphQL API calls and counts
-    let query_count_guard: MutexGuard<_> = QUERY_COUNT.lock().unwrap();
-
-    let total_calls: usize = query_count_guard.values().sum();
-
-    for (funct_name, count) in query_count_guard.iter() {
-        println!("{} called {} times", funct_name, count);
-    }
+    println!("Total GitHub GraphQL API calls: {}", counts.values().sum::<usize>());
 
     Ok(())
 }

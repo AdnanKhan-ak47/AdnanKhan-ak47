@@ -1,21 +1,27 @@
-use once_cell::sync::Lazy;
+use parking_lot::Mutex;
 use reqwest::blocking::Client;
-use serde_json::{json, Value};
-use std::collections::HashMap;
-use std::error::Error;
-use std::sync::Mutex;
-use std::time::Instant;
+use serde_json::{Value, json};
+use std::{
+    collections::BTreeMap,
+    error::Error,
+    sync::LazyLock,
+    thread,
+    time::{Duration, Instant},
+};
 
-use crate::exports::get_auth_headers;
+use crate::exports::AUTH_HEADERS;
 
-pub static QUERY_COUNT: Lazy<Mutex<HashMap<String, usize>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+const GRAPHQL_URL: &str = "https://api.github.com/graphql";
+const MAX_ATTEMPTS: u32 = 5;
 
-pub fn query_count(func_id: &str) {
-    let mut count = QUERY_COUNT.lock().unwrap();
-    let entry = count.entry(func_id.to_string()).or_insert(0);
-    *entry += 1;
-}
+pub static QUERY_COUNT: Mutex<BTreeMap<&'static str, usize>> = Mutex::new(BTreeMap::new());
+
+static CLIENT: LazyLock<Client> = LazyLock::new(|| {
+    Client::builder()
+        .timeout(Duration::from_secs(60))
+        .build()
+        .expect("failed to build HTTP client")
+});
 
 pub fn perf_counter<F, R>(func: F) -> (R, f64)
 where
@@ -23,59 +29,68 @@ where
 {
     let start = Instant::now();
     let result = func();
-    let duration = start.elapsed().as_secs_f64();
-    (result, duration)
+    (result, start.elapsed().as_secs_f64())
 }
 
-pub fn formatter(
-    query_type: &str,
-    duration: f64,
-    funct_return: Option<usize>,
-    whitespace: usize,
-) -> Option<String> {
-    print!("{:<23}", format!("   {}:", query_type));
-
-    if duration > 1.0 {
-        println!("{:>12}", format!("{:.4} s", duration));
+pub fn print_time(label: &str, duration: f64) {
+    let time = if duration > 1.0 {
+        format!("{duration:.4} s")
     } else {
-        println!("{:>12}", format!("{:.4} ms", duration * 1000.0));
-    }
-
-    if let Some(value) = funct_return {
-        Some(format!(
-            "{:>width$}",
-            format!("{:}", value),
-            width = whitespace
-        ))
-    } else {
-        None
-    }
+        format!("{:.4} ms", duration * 1000.0)
+    };
+    println!("{:<23}{time:>12}", format!("   {label}:"));
 }
 
+/// POST a GraphQL query, retrying transient failures (5xx, timeouts, dropped
+/// connections) with exponential backoff: GitHub's GraphQL gateway regularly
+/// returns 502/504 on heavy queries.
 pub fn simple_request(
-    func_name: &str,
+    func_name: &'static str,
     query: &str,
     variables: Value,
-) -> Result<reqwest::blocking::Response, Box<dyn Error>> {
-    let client = Client::new();
-    let url = "https://api.github.com/graphql";
+) -> Result<Value, Box<dyn Error>> {
+    let payload = json!({ "query": query, "variables": variables });
 
-    let payload = json!({
-        "query": query,
-        "variables": variables,
-    });
+    let mut attempt = 0;
+    loop {
+        attempt += 1;
+        *QUERY_COUNT.lock().entry(func_name).or_insert(0) += 1;
 
-    let headers = get_auth_headers();
+        let retry_reason = match CLIENT
+            .post(GRAPHQL_URL)
+            .headers(AUTH_HEADERS.clone())
+            .json(&payload)
+            .send()
+        {
+            Ok(response) => {
+                let status = response.status();
+                if status.is_success() {
+                    let json: Value = response.json()?;
+                    if let Some(errors) = json.get("errors") {
+                        return Err(format!("{func_name}: GraphQL errors: {errors}").into());
+                    }
+                    return Ok(json);
+                }
+                if !status.is_server_error() {
+                    let body = response.text().unwrap_or_default();
+                    return Err(format!("{func_name} failed with status {status}: {body}").into());
+                }
+                format!("status {status}")
+            }
+            Err(err) if err.is_timeout() || err.is_connect() || err.is_request() => err.to_string(),
+            Err(err) => return Err(err.into()),
+        };
 
-    let response = client
-        .post(url)
-        .headers(headers.clone())
-        .json(&payload)
-        .send()?;
-
-    if response.status().is_success() {
-        Ok(response)
-    } else {
-        Err(format!("{} failed with status {}", func_name, response.status()).into())
+        if attempt == MAX_ATTEMPTS {
+            return Err(
+                format!("{func_name} failed after {MAX_ATTEMPTS} attempts: {retry_reason}").into(),
+            );
+        }
+        let delay = Duration::from_secs(5 << (attempt - 1));
+        println!(
+            "{func_name}: {retry_reason}; retrying in {}s ({attempt}/{MAX_ATTEMPTS})",
+            delay.as_secs()
+        );
+        thread::sleep(delay);
     }
 }

@@ -1,28 +1,20 @@
-use dotenvy::dotenv;
-use once_cell::sync::Lazy;
-use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, USER_AGENT};
-use std::env;
+use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue, USER_AGENT};
+use std::{env, sync::LazyLock};
 
-// Could be set once after querying user ID
-pub static OWNER_ID: once_cell::sync::OnceCell<String> = once_cell::sync::OnceCell::new();
+pub static USER_NAME: LazyLock<String> =
+    LazyLock::new(|| env::var("USER_NAME").expect("USER_NAME not set"));
 
-pub static USER_NAME: Lazy<String> = Lazy::new(|| {
-    dotenv().ok();
-    env::var("USER_NAME").expect("USER_NAME not found")
-});
-
-pub fn get_auth_headers() -> HeaderMap {
-    dotenv().ok();
-    let token = env::var("ACCESS_TOKEN").expect("Access Token not found");
-
+pub static AUTH_HEADERS: LazyLock<HeaderMap> = LazyLock::new(|| {
+    let token = env::var("ACCESS_TOKEN").expect("ACCESS_TOKEN not set");
     let mut headers = HeaderMap::new();
-
     headers.insert(
         AUTHORIZATION,
-        HeaderValue::from_str(&format!("Bearer {}", token)).unwrap(),
+        HeaderValue::from_str(&format!("Bearer {token}")).expect("ACCESS_TOKEN is not a valid header value"),
     );
-
-    headers.insert(USER_AGENT, HeaderValue::from_static("my_rust_app"));
-
+    headers.insert(USER_AGENT, HeaderValue::from_static("AdnanKhan-ak47-readme"));
     headers
-}
+});
+
+/// Repos left out of every stat. `register` is a fork kept only for its free
+/// subdomain; its ~59k upstream commits made LOC counting slow and flaky.
+pub const EXCLUDED_REPOS: &[&str] = &["AdnanKhan-ak47/register"];
