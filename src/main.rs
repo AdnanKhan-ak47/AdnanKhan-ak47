@@ -43,9 +43,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("commit_data", loc.commits.to_string()),
         ("issue_data", issues.to_string()),
         ("pr_data", prs.to_string()),
-        ("loc_data", net_loc.to_string()),
-        ("loc_add", format!("{}++", loc.added)),
-        ("loc_del", format!("{}--", loc.deleted)),
+        ("loc_data", with_commas(net_loc)),
+        ("loc_add", format!("{}++", with_commas(loc.added as i64))),
+        ("loc_del", format!("{}--", with_commas(loc.deleted as i64))),
     ];
     svg_overwrite("src/dark_mode.svg", &values)?;
     svg_overwrite("src/light_mode.svg", &values)?;
@@ -59,4 +59,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Total GitHub GraphQL API calls: {}", counts.values().sum::<usize>());
 
     Ok(())
+}
+
+/// `1234567` → `"1,234,567"`.
+fn with_commas(n: i64) -> String {
+    let digits = n.unsigned_abs().to_string();
+    let mut out = String::with_capacity(digits.len() + digits.len() / 3 + 1);
+    if n < 0 {
+        out.push('-');
+    }
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i) % 3 == 0 {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
 }
