@@ -15,5 +15,10 @@
 
 <p align="center">
   <a href="https://github.com/DenverCoder1/github-readme-streak-stats"><img alt="GitHub contribution streak" width="49%" src="https://streak-stats.demolab.com/?user=AdnanKhan-ak47&theme=tokyonight&hide_border=true" /></a>
-  <a href="https://www.last.fm/user/adnankhan-ak"><img alt="Recently played on Last.fm" width="49%" src="https://lastfm-recently-played.vercel.app/api?user=adnankhan-ak&show_user=header&header_style=compact_stats&bg_color=1A1B27" /></a>
+  <a href="https://github.com/stats-organization/github-stats-extended"><img alt="GitHub stats" width="49%" src="https://github-stats-extended.vercel.app/api?username=AdnanKhan-ak47&theme=tokyonight&hide_border=true&include_all_commits=true&show_icons=true" /></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/stats-organization/github-stats-extended"><img align="top" alt="Top languages" width="49%" src="https://github-stats-extended.vercel.app/api/top-langs/?username=AdnanKhan-ak47&theme=tokyonight&hide_border=true&layout=compact" /></a>
+  <a href="https://www.last.fm/user/adnankhan-ak"><img align="top" alt="Recently played on Last.fm" width="49%" src="https://lastfm-recently-played.vercel.app/api?user=adnankhan-ak&show_user=header&header_style=compact_stats&bg_color=1A1B27" /></a>
 </p>
